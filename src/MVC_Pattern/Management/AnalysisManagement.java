@@ -15,20 +15,20 @@ import static MVC_Pattern.PosSystem.isCorrectMenu;
  */
 public class AnalysisManagement {
 
-    private ArrayList<Product> inititemList;
+    private ArrayList<Product> initItemList;
     private ArrayList<Product> soldItemList;
     private ArrayList<Product> reorderItemList;
     private Scanner keyboard = new Scanner(System.in);
 
     public AnalysisManagement(Management.DataCapsule capsule) {
-        this.inititemList = capsule.getInitItemList();
+        this.initItemList = capsule.getInitItemList();
         this.soldItemList = capsule.getSoldItemList();
         this.reorderItemList = capsule.getOrderItemList();
     }
 
     public void Accounts() {
         int totalPrice = 0;
-        for(int i = 1; i < inititemList.size(); i++) {
+        for(int i = 1; i < initItemList.size(); i++) {
             SalesRecord(i);
             if(isReordered()) {
                 totalPrice += getReorderItemTotalPrice(i, getSoldItemTotalPrice(i));
@@ -52,7 +52,7 @@ public class AnalysisManagement {
             if(isCancel(productNumber)) {
                 return;
             }
-            System.out.println("\n*----------" + inititemList.get(Integer.parseInt(productNumber)).getProductName()
+            System.out.println("\n*----------" + initItemList.get(Integer.parseInt(productNumber)).getProductName()
                     + " 판매기록.----------*");
             SalesRecord(Integer.parseInt(productNumber));
             break;
@@ -63,7 +63,7 @@ public class AnalysisManagement {
         if(isReordered()) {
             PrintProductSaleInfo(productNumber, getSoldItemAmount(productNumber),
                     getReorderItemTotalPrice(productNumber, getSoldItemTotalPrice(productNumber)));
-            System.out.println("\t" + getReorderItemAmount(productNumber));
+            System.out.println("\t" + "재입고량: " + getReorderItemAmount(productNumber));
         }
         else {
             PrintProductSaleInfo(productNumber, getSoldItemAmount(productNumber), getSoldItemTotalPrice(productNumber));
@@ -71,10 +71,10 @@ public class AnalysisManagement {
     }
 
     private void PrintItemList() {
-        for(int i = 1; i < inititemList.size(); i++) {
+        for(int i = 1; i < initItemList.size(); i++) {
             if(i % 4 == 0)
                 System.out.println("");
-            System.out.print(i + "." + inititemList.get(i).getProductName() + " ");
+            System.out.print(i + "." + initItemList.get(i).getProductName() + " ");
         }
         System.out.print("0.취소\n\n");
     }
@@ -86,10 +86,15 @@ public class AnalysisManagement {
         return true;
     }
     private void PrintProductSaleInfo(int productNumber, int soldItemAmount, int soldTotalPrice) {
-        System.out.print(
-                "상품이름: " + inititemList.get(productNumber).getProductName() +
-                        "\t 판매량: " + soldItemAmount +
-                        "\t 판매금액: " + soldTotalPrice);
+        System.out.print("상품이름: " + initItemList.get(productNumber).getProductName());
+        if(!isToolongName(initItemList.get(productNumber).getProductName().length())) {
+            System.out.print("\t\t 재고량: " + initItemList.get(productNumber).getProductAmount());
+        }
+        else {
+            System.out.print("\t 재고량: " + initItemList.get(productNumber).getProductAmount());
+        }
+        System.out.print("\t 판매량: " + soldItemAmount);
+        System.out.print("\t 판매금액: " + soldTotalPrice);
     }
 
     private int getSoldItemAmount(int productNumber) {
@@ -97,7 +102,7 @@ public class AnalysisManagement {
     }
 
     private int getSoldItemTotalPrice(int productNumber) {
-        return getSoldItemAmount(productNumber) * inititemList.get(productNumber).getProductCost();
+        return getSoldItemAmount(productNumber) * initItemList.get(productNumber).getProductCost();
     }
 
     private int getReorderItemAmount(int productNumber) {
@@ -105,7 +110,13 @@ public class AnalysisManagement {
     }
 
     private int getReorderItemTotalPrice(int productNumber, int soldTotalPrice) {
-        return getReorderItemAmount(productNumber) * reorderItemList.get(productNumber).getProductCost()
-                + soldTotalPrice;
+        return soldTotalPrice - getReorderItemAmount(productNumber) * reorderItemList.get(productNumber).getProductCost();
+    }
+
+    private boolean isToolongName(int length) {
+        if(length < 8) {
+            return false;
+        }
+        return true;
     }
 }

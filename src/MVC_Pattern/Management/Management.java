@@ -59,11 +59,9 @@ public class Management {
         }
         System.out.println("\n*----------재주문할 물품의 수량을 입력해주세요.----------*");
         Timer timer = new Timer();
-        AlertCapsule capsule = new AlertCapsule(Integer.parseInt(menuSelect),
-                Integer.parseInt(keyboard.nextLine()), getItemList(), getOrderItemList());
+        AlertCapsule capsule = new AlertCapsule(Integer.parseInt(menuSelect), Integer.parseInt(keyboard.nextLine()), getItemList(), getOrderItemList());
         ProductScheduler scheduler = new ProductScheduler(capsule);
         timer.schedule(scheduler, 1000);
-        //getOrderItemList().get(Integer.parseInt(menuSelect)).change_amount(scheduler.getReorderProduct().getProductAmount());
     }
 
     private void AlertLowAmountProduct() {
@@ -177,14 +175,19 @@ public class Management {
         try {
             output = new FileOutputStream("ProductFile");
 
-            for (int i = 0; i < initItemList.size(); i++) {
-                String str = i + 1 + ". " + initItemList.get(i).RegisterProductData() + "\n";
+            for (int i = 1; i < initItemList.size(); i++) {
+                String str = i + ". " + initItemList.get(i).RegisterProductData() + "\n";
                 output.write(str.getBytes());
             }
             output.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        System.out.println("\n*----------Today's total closing account----------*");
+        DataCapsule capsule = new DataCapsule(getItemList(), getSoldItemList(), getOrderItemList());
+        AnalysisManagement statisticManagement = new AnalysisManagement(capsule);
+        statisticManagement.Accounts();
     }
 
     private void LoadProductList() {
@@ -320,8 +323,8 @@ public class Management {
         private ArrayList<Product> reorderItemList;
 
         AlertCapsule(int number, int amount, ArrayList<Product> initItemList, ArrayList<Product> reorderItemList) {
-            this.productAmount = number;
-            this.productNumber = amount;
+            this.productAmount = amount;
+            this.productNumber = number;
             this.initItemList = new ArrayList<>();
             this.reorderItemList = new ArrayList<>();
             this.initItemList = initItemList;

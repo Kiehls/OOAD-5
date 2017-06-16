@@ -20,8 +20,8 @@ public class ProductScheduler extends TimerTask {
         this.amount = capsule.getProductAmount();
         this.productList = new ArrayList<>();
         this.reorderProductList = new ArrayList<>();
-        this.productList = capsule.getInitItemList();
-        this.reorderProductList = capsule.getReorderItemList();
+        this.productList = (ArrayList<Product>) capsule.getInitItemList().clone();
+        this.reorderProductList = (ArrayList<Product>) capsule.getReorderItemList().clone();
 
     }
 
