@@ -19,8 +19,8 @@ import static MVC_Pattern.PosSystem.isNumeric;
  * Created by Netapp on 2017-06-14.
  */
 public class Management {
-    private int initialMoney;
-    private int inboundMoney;
+    public static int initialMoney;
+    public static int inboundMoney;
     private ArrayList<Product> initItemList;
     private ArrayList<Product> soldItemList;
     private ArrayList<Product> orderItemList;
@@ -29,8 +29,11 @@ public class Management {
     public Management(int initialMoney) {
         this.initialMoney = initialMoney;
         this.keyboard = new Scanner(System.in);
-        initItemList = new ArrayList<>();
+        this.initItemList = new ArrayList<>();
+        this.soldItemList = new ArrayList<>();
+        this.orderItemList = new ArrayList<>();
         LoadProductList();
+        SetItemListZero();
     }
 
     private void CalculateCustomerItem(Customer customer) {
@@ -43,7 +46,8 @@ public class Management {
 
     public void RegisterItem() {
         Product product = MakeProduct();
-        initItemList.add(product);
+        getItemList().add(product);
+        SetItemListZero();
     }
 
     public void ReOrderProduct() {
@@ -55,10 +59,11 @@ public class Management {
         }
         System.out.println("\n*----------재주문할 물품의 수량을 입력해주세요.----------*");
         Timer timer = new Timer();
-        ProductScheduler scheduler = new ProductScheduler(Integer.parseInt(menuSelect),
-                Integer.parseInt(keyboard.nextLine()), getItemList());
+        AlertCapsule capsule = new AlertCapsule(Integer.parseInt(menuSelect),
+                Integer.parseInt(keyboard.nextLine()), getItemList(), getOrderItemList());
+        ProductScheduler scheduler = new ProductScheduler(capsule);
         timer.schedule(scheduler, 1000);
-        getOrderItemList().add(scheduler.getReorderProduct());
+        //getOrderItemList().get(Integer.parseInt(menuSelect)).change_amount(scheduler.getReorderProduct().getProductAmount());
     }
 
     private void AlertLowAmountProduct() {
@@ -109,10 +114,10 @@ public class Management {
     }
 
     public void PrintItemList() {
-        for(int i = 0; i < getItemList().size(); i++) {
+        for(int i = 1; i < getItemList().size(); i++) {
             if(i % 4 == 0)
                 System.out.println("");
-            System.out.print((i + 1) + "." + getItemList().get(i).getProductName() + " ");
+            System.out.print(i + "." + getItemList().get(i).getProductName() + " ");
         }
         System.out.print("0.취소\n\n");
     }
@@ -123,7 +128,7 @@ public class Management {
     }
 
     public void ShowCurrentMoney() {
-        System.out.println("Current Cash amout: " + inboundMoney + initialMoney);
+        System.out.println("Current Cash amout: " + (inboundMoney + initialMoney));
     }
 
     public static void PrintErrorHandling() {
@@ -155,7 +160,7 @@ public class Management {
             }
             switch(Integer.parseInt(select)) {
                 case 1:
-                    statisticManagement.MiddleAccounts();
+                    statisticManagement.Accounts();
                     break;
                 case 2:
                     statisticManagement.ShowEachProductSaleRecord();
@@ -185,6 +190,7 @@ public class Management {
     private void LoadProductList() {
         Product tempProduct = new Product();
         initItemList.add(tempProduct);
+
         try {
             BufferedReader in = new BufferedReader(new FileReader("ProductFile"));
             String str;
@@ -210,7 +216,7 @@ public class Management {
             public void run() {
                 if(getItemList().get(productNumber).getProductAmount() <= productAmount) {
                     System.out.println("*----------Notification---------------------*");
-                    System.out.println("현재 " + getItemList().get(productNumber - 1).getProductName() +
+                    System.out.println("현재 " + getItemList().get(productNumber).getProductName() +
                             " 상품의 재고량이 한계보다 낮습니다."
                     );
                     System.out.println("*-------------------------------------------*");
@@ -256,9 +262,32 @@ public class Management {
     }
 
     private void SoldItemManage(Customer customer) {
-        for (int i = 0; i < customer.getCustomerProductList().size(); i++) {
-            getSoldItemList().add(customer.getCustomerProductList().get(i));
+        for(int i = 0; i < customer.getCustomerProductList().size(); i++) {
+            for(int j = 0; j < getSoldItemList().size(); j++) {
+                if (customer.getCustomerProductList().get(i).getProductName().equals(getSoldItemList().get(j).getProductName())) {
+                    getSoldItemList().get(j).change_amount(customer.getCustomerProductList().get(i).getProductAmount());
+                    break;
+                }
+            }
         }
+    }
+
+    private void SetItemListZero() {
+        this.soldItemList = ArrayCopy(initItemList);
+        this.orderItemList = ArrayCopy(initItemList);
+    }
+
+    public static ArrayList<Product> ArrayCopy(ArrayList<Product> list) {
+        ArrayList<Product> temp = new ArrayList<>();
+        for (Product list_item : list) {
+            try {
+                temp.add((Product) list_item.clone());
+                temp.get(temp.size()-1).change_amount(0);
+            } catch (CloneNotSupportedException e) {
+                e.printStackTrace();
+            }
+        }
+        return temp;
     }
 
     public class DataCapsule {
@@ -281,6 +310,38 @@ public class Management {
         }
         public ArrayList<Product> getOrderItemList() {
             return this.orderItemList;
+        }
+    }
+
+    public class AlertCapsule {
+        private int productNumber;
+        private int productAmount;
+        private ArrayList<Product> initItemList;
+        private ArrayList<Product> reorderItemList;
+
+        AlertCapsule(int number, int amount, ArrayList<Product> initItemList, ArrayList<Product> reorderItemList) {
+            this.productAmount = number;
+            this.productNumber = amount;
+            this.initItemList = new ArrayList<>();
+            this.reorderItemList = new ArrayList<>();
+            this.initItemList = initItemList;
+            this.reorderItemList = reorderItemList;
+        }
+
+        public ArrayList<Product> getInitItemList() {
+            return this.initItemList;
+        }
+
+        public ArrayList<Product> getReorderItemList() {
+            return this.reorderItemList;
+        }
+
+        public int getProductNumber() {
+            return productNumber;
+        }
+
+        public int getProductAmount() {
+            return productAmount;
         }
     }
 }

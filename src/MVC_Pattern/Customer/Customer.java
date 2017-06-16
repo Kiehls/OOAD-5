@@ -21,13 +21,15 @@ public class Customer {
         itemList = new ArrayList<>();
         ArrayList<Integer> indexList = new ArrayList<>();
 
-        int randProductCount = rand.nextInt();
+        int randProductCount = rand.nextInt(10);
 
         if(randProductCount == 0)
             randProductCount = 1;
 
         for(int i = 0; i < randProductCount; i++) {
             int randProductIndex = rand.nextInt(productList.size());
+            if(randProductIndex == 0)
+                continue;
             if(!indexList.contains(randProductIndex)) {
                 try {
                     Product guestOrder = (Product)productList.get(randProductIndex).clone();
@@ -40,7 +42,10 @@ public class Customer {
         }
 
         for(int i = 0; i < itemList.size(); i++) {
-            int randProductAmount = rand.nextInt(itemList.get(i).getProductAmount());
+            int randProductAmount = rand.nextInt(10);
+            if(itemList.get(i).getProductAmount() < randProductAmount) {
+                randProductAmount = itemList.get(i).getProductAmount() / 2;
+            }
             if(randProductAmount == 0)
                 randProductAmount = 1;
             itemList.get(i).change_amount(randProductAmount);

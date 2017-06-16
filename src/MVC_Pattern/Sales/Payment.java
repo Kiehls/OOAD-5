@@ -49,7 +49,7 @@ public class Payment {
         }
         System.out.println("*---------------------------------*");
         System.out.println("총 금액: " + totalAmount + "\n");
-        System.out.println("결제를 취소하시겠습니까? (0번)");
+        System.out.println("결제를 취소하시겠습니까? Yes(0번) or No(1번)");
     }
 
     public int IncomeCash() {
@@ -69,34 +69,33 @@ public class Payment {
     }
 
     private void PrintReceiptCredit(Customer customer) {
-        String baseReciept = PrintReceiptBase(customer);
-        baseReciept += "      **신용카드 결제**    \n";
-        baseReciept += "카드사명:          해외VISA카드\n";
-        baseReciept += "승인금액:\t\t\t  " + totalAmount + "\n";
-        baseReciept += "발행일시: " + dateTime + "\n";
-        baseReciept += "------------------------------\n";
-        System.out.println(baseReciept);
+        String baseReceipt = PrintReceiptBase(customer);
+        baseReceipt += "      **신용카드 결제**    \n";
+        baseReceipt += "카드사명:          해외VISA카드\n";
+        baseReceipt += "승인금액:\t\t\t  " + totalAmount + "\n";
+        baseReceipt += "발행일시: " + dateTime + "\n";
+        baseReceipt += "------------------------------\n";
+        System.out.println(baseReceipt);
     }
     private void PrintReceiptCash(Customer customer) {
-        String baseReciept = PrintReceiptBase(customer);
-        baseReciept += "현금 결제:\t\t\t  " + totalAmount + "\n";
-        baseReciept += "------------------------------\n";
-        baseReciept += "발행일시: " + dateTime + "\n";
-        baseReciept += "------------------------------\n";
-        System.out.println(baseReciept);
+        String baseReceipt = PrintReceiptBase(customer);
+        baseReceipt += "현금 결제:\t\t\t  " + totalAmount + "\n";
+        baseReceipt += "------------------------------\n";
+        baseReceipt += "발행일시: " + dateTime + "\n";
+        baseReceipt += "------------------------------\n";
+        System.out.println(baseReceipt);
     }
     private String PrintReceiptBase(Customer customer) {
-        int totalSum = 0;
-        String recieptSTR = "";
+        String receiptSTR = "";
         SimpleDateFormat date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         dateTime = date.format(new Date(System.currentTimeMillis()));
 
-        recieptSTR += "\n          영수증          \n";
-        recieptSTR += "영수증 번호: " + receiptNumber + "\n";
-        recieptSTR += "------------------------------\n";
-        recieptSTR += "수량  품명             금액  \n";
+        receiptSTR += "\n          영수증          \n";
+        receiptSTR += "영수증 번호: " + (receiptNumber++) + "\n";
+        receiptSTR += "------------------------------\n";
+        receiptSTR += "수량  품명             금액  \n";
         StringBuilder sb = new StringBuilder();
-        for(int i = 1; i < customer.getCustomerProductList().size(); i++) {
+        for(int i = 0; i < customer.getCustomerProductList().size(); i++) {
             sb.append(customer.getCustomerProductList().get(i).getProductAmount() + "\t");
 
             if(isTooLongname(customer.getCustomerProductList().get(i).getProductName().length())) {
@@ -107,15 +106,15 @@ public class Payment {
 
             sb.append(customer.getCustomerProductList().get(i).getProductCost() * customer.getCustomerProductList().get(i).getProductAmount() + "\n");
         }
-        recieptSTR += sb.toString();
-        recieptSTR += "------------------------------\n";
-        recieptSTR += "주문 합계:\t\t\t  " + (totalSum * 0.9) + "\n";
-        recieptSTR += "부 가 세: \t\t\t  " + (totalSum * 0.1) + "\n";
-        recieptSTR += "------------------------------\n";
-        recieptSTR += "합계 금액:\t\t\t  " + totalSum + "\n";
-        recieptSTR += "------------------------------\n";
+        receiptSTR += sb.toString();
+        receiptSTR += "------------------------------\n";
+        receiptSTR += "주문 합계:\t\t\t  " + (totalAmount * 0.9) + "\n";
+        receiptSTR += "부 가 세: \t\t\t  " + (totalAmount * 0.1) + "\n";
+        receiptSTR += "------------------------------\n";
+        receiptSTR += "합계 금액:\t\t\t  " + totalAmount + "\n";
+        receiptSTR += "------------------------------\n";
 
-        return recieptSTR;
+        return receiptSTR;
     }
 
     private boolean isTooLongname(int length) {
